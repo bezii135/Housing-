@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <h1>My Blog</h1>
+
+    <div id="categories">
+        <button data-filter="all" class="filter-item active-filter">All</button>
+        <button data-filter="tech" class="filter-item">Tech</button>
+        <button data-filter="food" class="filter-item">Food</button>
+        <button data-filter="news" class="filter-item">News</button>
+    </div>
+
+    <div id="posts">
+        <% posts.forEach(post => { %>
+            <div class="post-box <%= post.category %>">
+                <h2><%= post.title %></h2>
+                <p><%= post.content %></p>
+                <p><strong>Category:</strong> <%= post.category %></p>
+                <p><strong>Published:</strong> <%= post.date %></p>
+            </div>
+        <% }) %>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
