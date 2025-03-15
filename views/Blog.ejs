@@ -3,31 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog</title>
+    <title>House Renovation Blog</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #6c4f3d;
+        }
+
+        #posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            justify-items: center;
+        }
+
+        .post-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            text-align: left;
+        }
+
+        .post-box h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .post-box p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .post-date {
+            font-size: 1.1em;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>My Blog</h1>
-
-    <div id="categories">
-        <button data-filter="all" class="filter-item active-filter">All</button>
-        <button data-filter="tech" class="filter-item">Tech</button>
-        <button data-filter="food" class="filter-item">Food</button>
-        <button data-filter="news" class="filter-item">News</button>
-    </div>
+    <h1>House Renovation Blog</h1>
 
     <div id="posts">
         <% posts.forEach(post => { %>
-            <div class="post-box <%= post.category %>">
+            <div class="post-box">
                 <h2><%= post.title %></h2>
                 <p><%= post.content %></p>
-                <p><strong>Category:</strong> <%= post.category %></p>
-                <p><strong>Published:</strong> <%= post.date %></p>
+
+                <% if (post.date) { %>
+                    <p class="post-date"><strong>Published:</strong> <%= new Date(post.date).toLocaleDateString() %></p>
+                <% } else { %>
+                    <p class="post-date"><strong>Published:</strong> Not available</p>
+                <% } %>
+
+                <% if (post.image) { %>
+                    <img src="data:image/jpeg;base64,<%= post.image %>" alt="Post Image" class="post-image">
+                <% } else { %>
+                    <p>No image available for this post.</p> <!-- Fallback message -->
+                <% } %>
             </div>
         <% }) %>
     </div>
 
-    <script src="/js/main.js"></script>
 </body>
 </html>
+
+

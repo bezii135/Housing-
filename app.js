@@ -1,24 +1,36 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require('express'); // ✅ Declare express BEFORE using it
 const path = require('path');
-const app = express();
 const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const fs = require('fs');
+const app = express(); // ✅ Now this works because express is already declared
 
-// Create SQLite database or connect to it
+// Debug logs
+const dbPath = path.join(__dirname, 'blog.db');
+console.log('Using database file:', dbPath);
+console.log('File exists:', fs.existsSync(dbPath));
+console.log('Views directory:', path.join(__dirname, 'views'));
+console.log('Current working directory:', process.cwd());
+
+// Set up SQLite database
 const db = new sqlite3.Database('./blog.db');
 
-// Set up body parser
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Set the view engine to EJS
-app.set('view engine', 'ejs');
-
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes for the blog page and admin panel
-app.use('/', require('./routes/blogRoutes'));
-app.use('/admin', require('./routes/adminRoutes'));
+// ✅ Set up view engine and views directory
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Set up multer for image upload (in-memory)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Routes
+const blogRoutes = require('./routes/blogRoutes');
+app.use('/', blogRoutes);
 
 // Start the server
 app.listen(3000, () => {
