@@ -9,7 +9,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Home - Display all blog posts
-router.get('/', (req, res) => {
+router.get('/blog', (req, res) => 
+    {
     const db = new sqlite3.Database('./blog.db');
     db.all('SELECT * FROM posts', (err, rows) => {
         if (err) {
