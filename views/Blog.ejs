@@ -18,7 +18,7 @@
           <li class="link"><a href="index.html">Home</a></li>
           <li class="link"><a href="About.html">About</a></li>
           <li class="link"><a href="service.html">Services</a></li>
-          <li class="link"><a href="portfolio.html">Portfolio</a></li>
+         
           <li class="link"><a href="/blog">Blog</a></li>
           <li class="link"><a href="Contact.html">Contact</a></li>
         </ul>
@@ -655,8 +655,13 @@ nav {
     </style>
 </head>
 <body>
-
+<div id="blog">  
     <h1>Blog</h1>
+    <section class = "blog" id = "blog">
+      <div class = "container">
+        <div class = "title">
+          
+      
 
     <div id="posts">
         <% posts.forEach(post => { %>
@@ -665,7 +670,7 @@ nav {
                 <p><%= post.content %></p>
 
                 <% if (post.date) { %>
-                    <p class="post-date"><strong>Published:</strong> <%= new Date(post.date).toLocaleDateString() %></p>
+                    
                 <% } else { %>
                     <p class="post-date"><strong>Published:</strong> Not available</p>
                 <% } %>
@@ -678,16 +683,48 @@ nav {
             </div>
         <% }) %>
     </div>
-   
+  </div>
+</div>
+</section>
     <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-        
-    }
+      .blog{
+    background: var(--primary-color);
+    padding: 4.5rem 0;
+}
+.blog-content{
+    margin: 2rem 0;}
+    .blog-img{
+    position: relative;
+}
+
+ h1{
+    font-family: var(--Playfair);
+    padding: 1rem 0;
+    font-size: 1.65rem;
+    font-weight: 500;
+}
+.blog-text p{
+    font-weight: 300;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    padding-bottom: 1.2rem;
+}
+.blog-text a{
+    font-family: var(--Roboto);
+    font-size: 1.1rem;
+    text-decoration: none;
+    color: var(--dark);
+    display: inline-block;
+    background: var(--dark);
+    color: #fff;
+    padding: 0.55rem 1.2rem;
+    transition: all 0.5s ease;
+}
+.blog-text a:hover{
+    background: var(--exDark);
+}
+
+   
     
     h1 {
         text-align: center;
@@ -699,14 +736,17 @@ nav {
     /* Blog Posts Grid */
     #posts {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 50px;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 30px;
         justify-items: center;
+        background-color: transparent;
     }
     
     /* Individual Post Card */
     .post-box {
-        background-color: white;
+      margin-top: 50px;
+         margin-left: 10px;
+         margin-right: 10px;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         padding: 20px;
@@ -714,7 +754,8 @@ nav {
         max-width: 350px;
         text-align: left;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-         margin-top: 200px;;
+        background-color: #f5f5f5;
+        
     }
     
     .post-box:hover {
@@ -723,17 +764,7 @@ nav {
     }
     
     /* Post Title */
-    .post-box h2 {
-        font-size: 1.8em;
-        margin-bottom: 15px;
-    }
-    
-    /* Post Content */
-    .post-box p {
-        font-size: 1.1em;
-        line-height: 1.6;
-        margin: 0 0 10px;
-    }
+   
     
     /* Image Styling */
     .post-image {
@@ -747,7 +778,7 @@ nav {
     /* Date Styling */
     .post-date {
         font-size: 1.1em;
-        color: #555;
+        color: #000000;
     }
     
     /* Responsive Adjustments */
@@ -769,6 +800,39 @@ nav {
         }
     }
     </style>
+     <footer class="section__container footer__container">
+      <div class="footer__col">
+        <h3>SmartSpace</h3>
+        <p>
+          <span><i class="ri-mail-fill"></i></span> smartspace@gmail.com
+        </p>
+        <p>
+          <span><i class="ri-phone-fill"></i></span> +91 9876543210
+        </p>
+      </div>
+      <div class="footer__col">
+        <h4>About</h4>
+        <a href="#">Home</a>
+        <a href="#">Pricing</a>
+        <a href="#">Company</a>
+        <a href="#">Resource</a>
+      </div>
+      <div class="footer__col">
+        <h4>Features</h4>
+        <a href="#">Blog</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms & Conditions</a>
+      </div>
+      <div class="footer__col">
+        <h4>Contact</h4>
+        <a href="#">Department</a>
+        <a href="#">Media</a>
+        <a href="#">Support</a>
+      </div>
+    </footer>
+    <div class="footer__bar">
+      Copyright © 2025 Leeve Homes. All rights reserved.
+    </div>
     
 </body>
 </html>
