@@ -655,37 +655,36 @@ nav {
     </style>
 </head>
 <body>
-<div id="blog">  
+  <div id="blog">  
     <h1>Blog</h1>
-    <section class = "blog" id = "blog">
-      <div class = "container">
-        <div class = "title">
-          
-      
 
-    <div id="posts">
-        <% posts.forEach(post => { %>
+    <section class="blog" id="blog">
+      <div class="container">
+        <div class="title">
+          <!-- You can put a section title or intro here if needed -->
+        </div>
+
+        <div id="posts">
+          <% posts.forEach(post => { %>
             <div class="post-box">
-                <h2><%= post.title %></h2>
-                <p><%= post.content %></p>
+              <h2><%= post.title %></h2>
+              <p><%= post.content %></p>
 
-                <% if (post.date) { %>
-                    
-                <% } else { %>
-                    <p class="post-date"><strong>Published:</strong> Not available</p>
-                <% } %>
+              
 
-                <% if (post.image) { %>
-                    <img src="data:image/jpeg;base64,<%= post.image %>" alt="Post Image" class="post-image">
-                <% } else { %>
-                    <p>No image available for this post.</p> <!-- Fallback message -->
-                <% } %>
+              <% if (post.image_filename) { %>
+                <img src="/uploads/<%= post.image_filename %>" alt="Post Image" class="post-image">
+              <% } else { %>
+                <p>No image available for this post.</p>
+              <% } %>
             </div>
-        <% }) %>
-    </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
   </div>
-</div>
-</section>
+</body>
+
     <style>
       .blog{
     background: var(--primary-color);

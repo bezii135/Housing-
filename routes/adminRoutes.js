@@ -84,7 +84,7 @@ router.post('/delete-post/:id', (req, res) => {
     const postId = req.params.id;
     db.run(`DELETE FROM posts WHERE id = ?`, [postId], (err) => {
         if (err) {
-            console.error(err);
+            console.error("Error deleting post:", err);
             return res.send('Error deleting post');
         }
         res.redirect('/'); // Redirect to the blog after deletion

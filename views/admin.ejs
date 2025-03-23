@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - House Renovation Blog</title>
+    <title><%= post ? 'Edit' : 'Add' %> Post</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-
-    <!-- Add or Edit Post Form -->
     <h1><%= post ? 'Edit' : 'Add' %> Post</h1>
 
-   
+    <!-- Success message section (placed above the form) -->
+ 
 
+    <!-- Add or Edit Post Form -->
     <form action="/add-update-post" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<%= post ? post.id : '' %>">
+        
         <label for="title">Title:</label>
         <input type="text" name="title" id="title" value="<%= post ? post.title : '' %>" required>
     
@@ -23,45 +24,17 @@
     
         <label for="category">Category:</label>
         <input type="text" name="category" id="category" value="<%= post ? post.category : '' %>" required>
-    
+
+        <% if (post && post.image_filename) { %>
+            <p>Current Image:</p>
+            <img src="/uploads/<%= post.image_filename %>" alt="Post Image" style="max-width: 200px; display: block; margin-bottom: 10px;">
+        <% } %>
+
         <label for="image">Upload Image:</label>
         <input type="file" name="image" id="image" accept="image/*">
         
         <button type="submit"><%= post ? 'Update' : 'Add' %> Post</button>
-       
-        
     </form>
-    <!-- Loop through and display posts -->
-    <% if (posts && posts.length > 0) { %>
-        <div class="post-list">
-            <% posts.forEach(function(post) { %>
-                <div class="post-box">
-                    <h2><%= post.title %></h2>
-                    <p><%= post.content.substring(0, 100) %>...</p>
-                    <p><strong>Category:</strong> <%= post.category %></p>
-                    
-                    <!-- Display image if the post has an image -->
-                    <% if (post.image) { %>
-                        <div class="post-image">
-                     
-                        </div>
-                    <% } %>
-    
-                    <!-- Edit Button -->
-                    <a href="/add-update-post/<%= post.id %>" class="edit-button">Edit</a>
-                    
-                    <!-- Delete Form -->
-                    <form action="/delete-post/<%= post.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');" class="delete-form">
-                        <button type="submit" class="delete-button">Delete</button>
-                    </form>
-                </div>
-            <% }); %>
-        </div>
-    <% } else { %>
-        <p>No posts found.</p>
-    <% } %>
-    
-
     
     <!-- Delete Post Section (if editing an existing post) -->
     <% if (post) { %>
@@ -69,6 +42,45 @@
             <button type="submit" class="delete-button">Delete Post</button>
         </form>
     <% } %>
+
+    <section></section>
+
+    <style>
+        /* Add your CSS styling here */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</body>
+</html>
+
+
+    <style>
+        /* Add your CSS styling here */
+    </style>
+
+</body>
+</html>
+
+
 
     <style>
         /* General Styles */
@@ -147,95 +159,31 @@
             background-color:#C5D1A3;
         }
 
-       /* Styling for post box */
-.post-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 20px;
-    padding: 20px;
-}
+        .delete-button {
+            background-color: #E74C3C; /* Red */
+            color: white;
+            font-size: 1.1em;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
+            display: block;
+            margin: 20px auto;
+        }
 
-.post-box {
-    background-color: #ffffff; /* White background */
-    border: 1px solid #ddd; /* Light border around each post */
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for a card effect */
-    width: calc(33% - 40px); /* Three posts per row (with some gap) */
-    box-sizing: border-box;
-}
+        .delete-button:hover {
+            background-color: #C0392B;
+        }
 
-.post-box h2 {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-}
-
-.post-box p {
-    font-size: 1em;
-    margin-bottom: 15px;
-}
-
-.post-box a.edit-button {
-    color: #2980B9; /* Blue color for the edit link */
-    font-size: 1em;
-    text-decoration: none;
-}
-
-.post-box a.edit-button:hover {
-    text-decoration: underline;
-}
-
-.delete-button {
-    background-color: #E74C3C; /* Red */
-    color: white;
-    font-size: 1.1em;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    max-width: 200px;
-    display: block;
-    margin: 20px auto;
-}
-
-.delete-button:hover {
-    background-color: #C0392B;
-}
-/* Style for the post image */
-.post-image {
-    margin: 10px 0;
-    text-align: center;
-}
-
-.post-img {
-    max-width: 100%; /* Ensure image is responsive */
-    height: auto;
-    border-radius: 8px; /* Optional: adds rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds shadow for a card effect */
-}
-
-
-/* Responsive Design for smaller screens */
-@media (max-width: 600px) {
-    .post-box {
-        width: 100%; /* Make post box full width on smaller screens */
-    }
-
-    h1 {
-        font-size: 2em;
-    }
-
-    form {
-        padding: 15px;
-    }
-
-    input,
-    textarea {
-        font-size: 1em;
-        padding: 10px;
-    }
+        .success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #c3e6cb;
 }
 
 
@@ -255,7 +203,6 @@
                 padding: 10px;
             }
         }
-        
     </style>
 
 </body>
