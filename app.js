@@ -12,8 +12,6 @@ const app = express();
 // Set up SQLite database
 const dbPath = path.join(__dirname, 'blog.db');
 console.log('Using database file:', dbPath);
-
-// Set up SQLite database
 const db = new sqlite3.Database(dbPath);
 
 // Ensure uploads folder exists
@@ -43,16 +41,16 @@ app.use(session({
   saveUninitialized: true
 }));
 
-
-// Serve static files from the "public" and "uploads" folders
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // ✅ Added to serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Set up EJS view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Create posts table if not exists ✅ Now includes image_filename and category
+// Create tables
+
 db.run(`CREATE TABLE IF NOT EXISTS posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -62,22 +60,17 @@ db.run(`CREATE TABLE IF NOT EXISTS posts (
   image_filename TEXT
 )`);
 
-// Optional: create users table if not exists
 db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE,
+  password TEXT
 )`);
 
-// Blog routes
+// Blog route
 app.get('/blog', (req, res) => {
   db.all('SELECT * FROM posts', (err, rows) => {
-    if (err) {
-      console.error("Error fetching posts:", err);
-      return res.status(500).send('Error fetching posts');
-    }
+    if (err) return res.status(500).send('Error fetching posts');
 
-    // Convert image filename to the correct URL for displaying the image
     rows.forEach(row => {
       if (row.image_filename) {
         row.image = '/uploads/' + row.image_filename;
@@ -88,118 +81,79 @@ app.get('/blog', (req, res) => {
   });
 });
 
-// Admin routes
+// Admin dashboard (add new)
 app.get('/admin', (req, res) => {
-  if (req.session.user) { // ✅ Simplified (was checking isAdmin, which doesn’t exist yet)
-    db.all("SELECT * FROM posts", (err, posts) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error fetching posts");
-      }
-      res.render('admin', { posts: posts, post: null }); // <- added post: null
+  if (!req.session.user) return res.redirect('/login');
 
-    });
-  } else {
-    res.redirect('/login');
-  }
+  db.all('SELECT * FROM posts ORDER BY date DESC', (err, posts) => {
+    if (err) return res.status(500).send("Database error");
+    res.render('admin', { post: null, posts });
+  });
 });
 
-app.get('/add-update-post/:id?', (req, res) => {
-  const postId = req.params.id;
-  if (postId) {
-    db.get('SELECT * FROM posts WHERE id = ?', [postId], (err, row) => {
-      if (err) {
-        console.error("Error fetching post for update:", err);
-        return res.status(500).send('Database error');
-      }
-      res.render('admin', { post: row });
+// Admin dashboard (edit specific post)
+app.get('/admin/:id', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const id = req.params.id;
+  db.get('SELECT * FROM posts WHERE id = ?', [id], (err, post) => {
+    if (err || !post) return res.status(404).send("Post not found");
+
+    db.all('SELECT * FROM posts ORDER BY date DESC', (err, posts) => {
+      if (err) return res.status(500).send("Database error");
+      res.render('admin', { post, posts });
     });
-  } else {
-    res.render('admin', { post: null });
-  }
+  });
 });
 
+// Add or update post
 app.post('/add-update-post', upload.single('image'), (req, res) => {
-    const { title, content, category, id } = req.body;
-    const imageFilename = req.file ? req.file.filename : null;
-  
-    if (!title || !content || !category) {
-      return res.status(400).send('All fields (title, content, category) are required.');
-    }
-  
-    const date = new Date().toISOString();
-  
-    if (id) {
-      // Update existing post
-      let updateQuery = "UPDATE posts SET title = ?, content = ?, category = ?, date = ?" + (imageFilename ? ", image_filename = ?" : "") + " WHERE id = ?";
-      const updateParams = imageFilename ? [title, content, category, date, imageFilename, id] : [title, content, category, date, id];
-  
-      db.run(updateQuery, updateParams, (err) => {
-        if (err) return res.send("Error updating post.");
-        res.redirect('/blog?successMessage=Post updated successfully!');
-      });
-    } else {
-      // Insert new post
-      let insertQuery = "INSERT INTO posts (title, content, category, date, image_filename) VALUES (?, ?, ?, ?, ?)";
-      db.run(insertQuery, [title, content, category, date, imageFilename], (err) => {
-        if (err) return res.send("Error adding post.");
-        res.redirect('/blog?successMessage=Post added successfully!');
-      });
-    }
-  });
-  
-// Route to delete a post
+  const { title, content, category, id } = req.body;
+  const imageFilename = req.file ? req.file.filename : null;
+  const date = new Date().toISOString();
+
+  if (!title || !content || !category) {
+    return res.status(400).send('All fields are required.');
+  }
+
+  if (id) {
+    let updateQuery = "UPDATE posts SET title = ?, content = ?, category = ?, date = ?" + (imageFilename ? ", image_filename = ?" : "") + " WHERE id = ?";
+    const updateParams = imageFilename ? [title, content, category, date, imageFilename, id] : [title, content, category, date, id];
+
+    db.run(updateQuery, updateParams, (err) => {
+      if (err) return res.send("Error updating post.");
+      res.redirect('/admin');
+    });
+  } else {
+    db.run("INSERT INTO posts (title, content, category, date, image_filename) VALUES (?, ?, ?, ?, ?)", [title, content, category, date, imageFilename], (err) => {
+      if (err) return res.send("Error adding post.");
+      res.redirect('/admin');
+    });
+  }
+});
+
+// Delete post
 app.post('/delete-post/:id', (req, res) => {
-    const postId = req.params.id;
-  
-    // First, get the image filename (if it exists) to delete the image
-    db.get('SELECT image_filename FROM posts WHERE id = ?', [postId], (err, row) => {
-      if (err) return res.status(500).send('Error fetching post.');
-  
-      if (row && row.image_filename) {
-        const imagePath = path.join(__dirname, 'uploads', row.image_filename);
-        fs.unlink(imagePath, (err) => {
-          if (err) console.error("Error deleting image:", err);
-        });
-      }
-  
-      // Delete the post from the database
-      db.run('DELETE FROM posts WHERE id = ?', [postId], (err) => {
-        if (err) return res.status(500).send('Error deleting post.');
-        res.redirect('/admin?successMessage=Post deleted successfully!');
-      });
-    });
-  });
-  
-  app.get('/admin', (req, res) => {
-    db.all('SELECT * FROM posts ORDER BY date DESC', (err, rows) => {
-      if (err) return res.status(500).send('Error fetching posts.');
-  
-      res.render('admin', {
-        posts: rows, // Pass the posts to admin.ejs
-        successMessage: req.query.successMessage // If there's a success message
-      });
-    });
-  });
-  
+  const postId = req.params.id;
 
-  app.get('/admin/:id', (req, res) => {
-    const postId = req.params.id;
-  
-    // Fetch the post to edit
-    db.get('SELECT * FROM posts WHERE id = ?', [postId], (err, row) => {
-      if (err) return res.status(500).send('Error fetching post.');
-      if (!row) return res.status(404).send('Post not found.');
-  
-      res.render('admin', {
-        post: row // Send the post to the admin template for editing
+  db.get('SELECT image_filename FROM posts WHERE id = ?', [postId], (err, row) => {
+    if (err) return res.status(500).send('Error fetching post.');
+
+    if (row && row.image_filename) {
+      const imagePath = path.join(__dirname, 'uploads', row.image_filename);
+      fs.unlink(imagePath, (err) => {
+        if (err) console.error("Error deleting image:", err);
       });
+    }
+
+    db.run('DELETE FROM posts WHERE id = ?', [postId], (err) => {
+      if (err) return res.status(500).send('Error deleting post.');
+      res.redirect('/admin');
     });
   });
-  
-  
+});
 
-// Static HTML page routes
+// Static pages
 app.get('/about', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'About.html'));
 });
@@ -216,7 +170,7 @@ app.get('/portfolio', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'portfolio.html'));
 });
 
-// Registration routes
+// Registration
 app.get("/register", (req, res) => {
   res.render("register");
 });
@@ -225,22 +179,16 @@ app.post("/register", (req, res) => {
   const { username, password } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
-    if (err) {
-      console.error(err);
-      return res.send("Error encrypting password.");
-    }
+    if (err) return res.send("Error encrypting password.");
 
     db.run("INSERT INTO users (username, password) VALUES (?, ?)", [username, hash], (err) => {
-      if (err) {
-        console.error(err);
-        return res.send("Username already exists or database error.");
-      }
+      if (err) return res.send("Username already exists or database error.");
       res.redirect("/login");
     });
   });
 });
 
-// Login routes
+// Login
 app.get("/login", (req, res) => {
   res.render("login");
 });
@@ -249,19 +197,13 @@ app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
-    if (err) {
-      console.error(err);
-      return res.send("Database error.");
-    }
-
-    if (!user) {
-      return res.send("Invalid username or password.");
-    }
+    if (err) return res.send("Database error.");
+    if (!user) return res.send("Invalid username or password.");
 
     bcrypt.compare(password, user.password, (err, result) => {
       if (result) {
         req.session.user = user;
-        res.redirect("/add-update-post");
+        res.redirect("/admin");
       } else {
         res.send("Invalid username or password.");
       }
@@ -269,14 +211,14 @@ app.post("/login", (req, res) => {
   });
 });
 
-// Logout route
+// Logout
 app.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/login");
   });
 });
 
-// Start the server
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

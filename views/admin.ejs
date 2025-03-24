@@ -42,6 +42,37 @@
             <button type="submit" class="delete-button">Delete Post</button>
         </form>
     <% } %>
+    <!-- List of All Posts -->
+<section style="margin-top: 50px;">
+    <h2>All Posts</h2>
+
+    <% if (posts && posts.length > 0) { %>
+        <% posts.forEach(post => { %>
+            <div class="post">
+                <h3><%= post.title %></h3>
+                <p><%= post.content %></p>
+                <p><strong>Category:</strong> <%= post.category %></p>
+                <p><small>Posted on: <%= new Date(post.date).toLocaleDateString() %></small></p>
+
+                <% if (post.image_filename) { %>
+                    <img src="/uploads/<%= post.image_filename %>" alt="Post Image" style="max-width: 150px; display: block;">
+                <% } %>
+
+                <div class="post-actions" style="margin-top: 10px;">
+                    <a href="/admin/<%= post.id %>" class="btn">Edit</a>
+
+                    <form action="/delete-post/<%= post.id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="delete-button" onclick="return confirm('Are you sure?');">Delete</button>
+                    </form>
+                </div>
+            </div>
+            <hr>
+        <% }); %>
+    <% } else { %>
+        <p>No posts yet.</p>
+    <% } %>
+</section>
+
 
     <section></section>
 
@@ -84,127 +115,164 @@
 
     <style>
         /* General Styles */
-        body {
-            font-family: 'Times New Roman', serif;
-            background-color: #fdfdfd;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
+       /* General Styles */
+body {
+    font-family: 'Times New Roman', serif;
+    background-color: #fdfdfd;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
 
-        /* Heading */
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #000;
-        }
+/* Heading */
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #000;
+}
 
-        /* Form Container */
-        form {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
+/* Form Container */
+form {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
 
-        /* Form Labels */
-        label {
-            font-size: 1.1em;
-            font-weight: bold;
-            display: block;
-            margin: 10px 0 5px;
-        }
+/* Form Labels */
+label {
+    font-size: 1.1em;
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+}
 
-        /* Form Inputs */
-        input[type="text"],
-        input[type="file"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-bottom: 2px solid #ccc; /* Default bottom border */
-            border-radius: 0;
+/* Form Inputs */
+input[type="text"],
+input[type="file"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 0;
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 15px;
+    outline: none;
+    transition: border-bottom 0.3s ease-in-out;
+}
 
-            font-size: 1.1em;
-            color: #333;
-            margin-bottom: 15px;
-            outline: none; /* Removes default focus outline */
-            transition: border-bottom 0.3s ease-in-out;
-        }
+textarea:hover,
+textarea:focus,
+input[type="text"]:focus {
+    border-bottom: 2px solid #C5D1A3;
+}
 
-        textarea:hover,
-        textarea:focus {
-            border-bottom: 2px solid #C5D1A3; /* Light limestone green */
-        }
+/* Buttons */
+button,
+a.btn {
+    background-color: #1a1a1a;
+    color: white;
+    font-size: 1.1em;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    max-width: 200px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px 5px 10px 0;
+    transition: background-color 0.3s ease-in-out;
+}
 
-        /* Submit and Delete Buttons */
-        button {
-            background-color: #1a1a1a;
-            color: white;
-            font-size: 1.1em;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            max-width: 200px;
-            display: block;
-            margin: 20px auto;
-        }
+button:hover,
+a.btn:hover {
+    background-color: #C5D1A3;
+}
 
-        button:hover {
-            background-color:#C5D1A3;
-        }
+/* Delete Button Specific */
+.delete-button {
+    background-color: #E74C3C;
+}
 
-        .delete-button {
-            background-color: #E74C3C; /* Red */
-            color: white;
-            font-size: 1.1em;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            max-width: 200px;
-            display: block;
-            margin: 20px auto;
-        }
+.delete-button:hover {
+    background-color: #C0392B;
+}
 
-        .delete-button:hover {
-            background-color: #C0392B;
-        }
+/* Success Message */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #c3e6cb;
+}
 
-        .success-message {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  border: 1px solid #c3e6cb;
+/* Post List */
+.post {
+    padding: 20px;
+    margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Post Actions */
+.post-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    form {
+        padding: 15px;
+    }
+
+    input,
+    textarea {
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    .post-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+/* Edit Button */
+.edit-button {
+    background-color: #3498db; /* Soft blue */
+    color: white;
+    font-size: 1.1em;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    max-width: 200px;
+    display: inline-block;
+    text-decoration: none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.edit-button:hover {
+    background-color: #2980b9;
 }
 
 
-        /* Responsive Adjustments */
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2em;
-            }
-
-            form {
-                padding: 15px;
-            }
-
-            input,
-            textarea {
-                font-size: 1em;
-                padding: 10px;
-            }
-        }
     </style>
 
 </body>
 </html>
-

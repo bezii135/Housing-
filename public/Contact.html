@@ -14,40 +14,48 @@
     <header>
       <nav>
         <div class="nav__logo"><a href="#">Leeve Homes</a></div>
-        <ul class="nav__links">
+      
+        <!-- Mobile toggle button -->
+        <div class="nav__toggle" id="nav-toggle">
+          <i class="ri-menu-line"></i>
+        </div>
+      
+        <!-- Navigation links -->
+        <ul class="nav__links" id="nav-links">
           <li class="link"><a href="index.html">Home</a></li>
           <li class="link"><a href="About.html">About</a></li>
           <li class="link"><a href="service.html">Services</a></li>
-        
           <li class="link"><a href="/blog">Blog</a></li>
           <li class="link"><a href="Contact.html">Contact</a></li>
         </ul>
       </nav>
+      
       <h1>Contact Us</h1>
     
    
-    <form action="submit_form.php" method="post">
+      <form action="https://formsubmit.co/info@leveehomes.ca" method="POST">
+        <!-- Hidden inputs to control behavior -->
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="box">
+        <input type="hidden" name="_subject" value="New Contact Form Submission">
+        
+      
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" required>
-
+      
         <label for="email">Email Address</label>
         <input type="email" id="email" name="email" required>
-
+      
         <label for="phone">Phone Number</label>
         <input type="tel" id="phone" name="phone">
-
-        <label for="subject">Subject</label>
-        <select id="subject" name="subject" required>
-            <option value="" disabled selected>Select a subject</option>
-            <option value="general">General Inquiry</option>
-            <option value="support">Customer Support</option>
-            <option value="feedback">Feedback</option>
-        </select>
-
+      
+      
         <label for="message">Message</label>
         <textarea id="message" name="message" required></textarea>
-
+      
         <input type="submit" value="Send Message">
+      </form>
+      >
     </form>
   <style>body {
     font-family: 'Times New Roman', serif;
@@ -171,6 +179,51 @@ input[type="submit"]:hover {
         padding: 10px;
     }
 }
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+}
+
+.nav__links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+.nav__toggle {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .nav__links {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 1rem 0;
+    gap: 1rem;
+    display: none;
+    z-index: 100;
+  }
+
+  .nav__links.show-menu {
+    display: flex;
+  }
+
+  .nav__toggle {
+    display: block;
+  }
+}
+
 
 </style>
     
@@ -783,5 +836,18 @@ input[type="submit"]:hover {
           text-align: center;
         }
       }</style>
+
+<script>
+  const toggle = document.getElementById("nav-toggle");
+  const navLinks = document.getElementById("nav-links");
+
+  toggle.addEventListener("click", () => {
+    navLinks.classList.toggle("show-menu");
+    toggle.innerHTML = navLinks.classList.contains("show-menu")
+      ? '<i class="ri-close-line"></i>'
+      : '<i class="ri-menu-line"></i>';
+  });
+</script>
+
   </body>
 </html>
